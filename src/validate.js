@@ -7,6 +7,7 @@ const { HASH_ALGORITHM, ERROR_CODES } = require('./constants');
 const { HashValidatorError } = require('./error');
 const {
     filePathIsUrl,
+    getFullFilePath,
     getHashFilePath,
     createReadStreamByUrl,
     getFileByUrl,
@@ -14,19 +15,61 @@ const {
 } = require('./utils');
 
 async function getHashFromFileSystem(filePath) {
-    const hash = await fs.promises.readFile(getHashFilePath(filePath), { encoding: 'utf-8' });
-    return hash.trim();
+    try {
+        const hash = await fs.promises.readFile(getHashFilePath(filePath), { encoding: 'utf-8' });
+        return hash.trim();
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            throw new HashValidatorError(
+                'Hash file not found',
+                ERROR_CODES.HashFileNotFound
+            );
+        } else {
+            throw new HashValidatorError(
+                `Unexpected error ${error.message}`,
+                ERROR_CODES.UnexpectedError
+            );
+        }
+    }
 }
 
 async function getHashByUrl(url) {
-    const hash = await getFileByUrl(getHashFilePath(url));
-    return hash.trim();
+    try {
+        const hash = await getFileByUrl(getHashFilePath(url));
+        return hash.trim();
+    } catch (error) {
+        if (error.name === 'HTTPError') {
+            throw new HashValidatorError(
+                'Hash file not found',
+                ERROR_CODES.HashFileNotFound
+            );
+        } else {
+            throw new HashValidatorError(
+                `Unexpected error ${error.message}`,
+                ERROR_CODES.UnexpectedError
+            );
+        }
+    }
 }
 
 async function computeHashFromSourceFile(file) {
-    const hash = crypto.createHash(HASH_ALGORITHM);
-    await asyncPipeline(file, hash);
-    return hash.digest('hex');
+    try {
+        const hash = crypto.createHash(HASH_ALGORITHM);
+        await asyncPipeline(file, hash);
+        return hash.digest('hex');
+    } catch (error) {
+        if (error.code === 'ENOENT' || error.name === 'HTTPError') {
+            throw new HashValidatorError(
+                'Source file not found',
+                ERROR_CODES.SourceFileNotFound
+            );
+        } else {
+            throw new HashValidatorError(
+                `Unexpected error ${error.message}`,
+                ERROR_CODES.UnexpectedError
+            );
+        }
+    }
 }
 
 function compareHashes(sourceHash, computedHash) {
@@ -36,14 +79,13 @@ function compareHashes(sourceHash, computedHash) {
 }
 
 async function validateFromFileSystem(filePath) {
-    const file = fs.createReadStream(filePath);
+    const fullFilePath = getFullFilePath(filePath);
+    const file = fs.createReadStream(fullFilePath);
 
     const [ sourceHash, computedHash ] = await Promise.all([
-        getHashFromFileSystem(filePath),
+        getHashFromFileSystem(fullFilePath),
         computeHashFromSourceFile(file)
     ]);
-
-    console.log({ sourceHash, computedHash });
 
     compareHashes(sourceHash, computedHash)
 
@@ -57,8 +99,6 @@ async function validateByUrl(url) {
         getHashByUrl(url),
         computeHashFromSourceFile(file)
     ]);
-
-    console.log({ sourceHash, computedHash });
 
     compareHashes(sourceHash, computedHash)
 

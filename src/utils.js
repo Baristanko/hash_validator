@@ -16,7 +16,7 @@ function filePathIsUrl(filePath) {
 }
 
 function getFullFilePath(filePath) {
-    return path.isAbsolute(filePath) ? filePath : path.resolve(__dirname, filePath);
+    return path.isAbsolute(filePath) ? filePath : path.resolve(__dirname, '..', filePath);
 }
 
 function getHashFilePath(filePath) {
