@@ -10,7 +10,7 @@ const {
     getHashFilePath,
     createReadStreamByUrl,
     getFileByUrl,
-    pipeline
+    asyncPipeline
 } = require('./utils');
 
 async function getHashFromFileSystem(filePath) {
@@ -19,19 +19,20 @@ async function getHashFromFileSystem(filePath) {
 }
 
 async function getHashByUrl(url) {
-    const hash = await getFileByUrl(url);
-
-    console.log({ hash });
-
+    const hash = await getFileByUrl(getHashFilePath(url));
     return hash.trim();
 }
 
 async function computeHashFromSourceFile(file) {
     const hash = crypto.createHash(HASH_ALGORITHM);
-
-    await pipeline(file, hash);
-
+    await asyncPipeline(file, hash);
     return hash.digest('hex');
+}
+
+function compareHashes(sourceHash, computedHash) {
+    if (sourceHash !== computedHash) {
+        throw new HashValidatorError('Hashes don\'t match', ERROR_CODES.HashesNotMatch);
+    }
 }
 
 async function validateFromFileSystem(filePath) {
@@ -42,9 +43,9 @@ async function validateFromFileSystem(filePath) {
         computeHashFromSourceFile(file)
     ]);
 
-    if (sourceHash !== computedHash) {
-        throw new HashValidatorError('Hashes don\'t match', ERROR_CODES.HashesNotMatch);
-    }
+    console.log({ sourceHash, computedHash });
+
+    compareHashes(sourceHash, computedHash)
 
     return computedHash;
 }
@@ -52,19 +53,20 @@ async function validateFromFileSystem(filePath) {
 async function validateByUrl(url) {
     const file = await createReadStreamByUrl(url);
 
-    console.log('validateByUrl');
-
     const [ sourceHash, computedHash ] = await Promise.all([
         getHashByUrl(url),
         computeHashFromSourceFile(file)
     ]);
 
     console.log({ sourceHash, computedHash });
+
+    compareHashes(sourceHash, computedHash)
+
+    return computedHash;
 }
 
 function validateFileHash(filePath) {
     if (filePathIsUrl(filePath)) {
-        console.log('File path is url');
         return validateByUrl(filePath);
     } else {
         return validateFromFileSystem(filePath);
