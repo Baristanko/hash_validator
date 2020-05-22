@@ -6,14 +6,18 @@ describe('validateFileHash', () => {
     const correctFileSystemTextFile = './test-files/text-file.txt';
     const correctFileSystemBinaryFile = './test-files/binary-file.png';
 
-    const correctUrlTextFile = 'https://raw.github.com/Baristanko/hash_validator/master/test-files/text-file.txt';
-    const correctUrlBinaryFile = 'https://raw.github.com/Baristanko/hash_validator/master/test-files/binary-file.png';
+    const correctUrlTextFile =
+        'https://raw.github.com/Baristanko/hash_validator/master/test-files/text-file.txt';
+    const correctUrlBinaryFile =
+        'https://raw.github.com/Baristanko/hash_validator/master/test-files/binary-file.png';
 
     const nonexistentFileSystemFile = './test-files/nonexistent-file.txt';
-    const nonexistentUrlFile = 'https://raw.github.com/Baristanko/hash_validator/master/test-files/nonexistent-file.txt';
+    const nonexistentUrlFile =
+        'https://raw.github.com/Baristanko/hash_validator/master/test-files/nonexistent-file.txt';
 
     const fileSystemFileWithoutHash = './test-files/file-without-hash.txt';
-    const urlFileWithoutHash = 'https://raw.github.com/Baristanko/hash_validator/master/test-files/file-without-hash.txt';
+    const urlFileWithoutHash =
+        'https://raw.github.com/Baristanko/hash_validator/master/test-files/file-without-hash.txt';
 
     const fileWithInvalidHash = './test-files/file-with-invalid-hash.txt';
 

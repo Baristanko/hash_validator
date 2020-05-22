@@ -16,7 +16,9 @@ const {
 
 async function getHashFromFileSystem(filePath) {
     try {
-        const hash = await fs.promises.readFile(getHashFilePath(filePath), { encoding: 'utf-8' });
+        const hash = await fs.promises.readFile(getHashFilePath(filePath), {
+            encoding: 'utf-8'
+        });
         return hash.trim();
     } catch (error) {
         if (error.code === 'ENOENT') {
@@ -74,7 +76,10 @@ async function computeHashFromSourceFile(file) {
 
 function compareHashes(sourceHash, computedHash) {
     if (sourceHash !== computedHash) {
-        throw new HashValidatorError('Hashes don\'t match', ERROR_CODES.HashesNotMatch);
+        throw new HashValidatorError(
+            'Hashes do not match',
+            ERROR_CODES.HashesNotMatch
+        );
     }
 }
 
@@ -82,12 +87,12 @@ async function validateFromFileSystem(filePath) {
     const fullFilePath = getFullFilePath(filePath);
     const file = fs.createReadStream(fullFilePath);
 
-    const [ sourceHash, computedHash ] = await Promise.all([
+    const [sourceHash, computedHash] = await Promise.all([
         getHashFromFileSystem(fullFilePath),
         computeHashFromSourceFile(file)
     ]);
 
-    compareHashes(sourceHash, computedHash)
+    compareHashes(sourceHash, computedHash);
 
     return computedHash;
 }
@@ -95,12 +100,12 @@ async function validateFromFileSystem(filePath) {
 async function validateByUrl(url) {
     const file = await createReadStreamByUrl(url);
 
-    const [ sourceHash, computedHash ] = await Promise.all([
+    const [sourceHash, computedHash] = await Promise.all([
         getHashByUrl(url),
         computeHashFromSourceFile(file)
     ]);
 
-    compareHashes(sourceHash, computedHash)
+    compareHashes(sourceHash, computedHash);
 
     return computedHash;
 }

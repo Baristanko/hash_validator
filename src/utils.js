@@ -12,11 +12,16 @@ const { HASH_ALGORITHM } = require('./constants');
 const asyncPipeline = util.promisify(stream.pipeline);
 
 function filePathIsUrl(filePath) {
-    return validator.isURL(filePath, { require_protocol: true, protocols: ['http', 'https'] });
+    return validator.isURL(filePath, {
+        require_protocol: true,
+        protocols: ['http', 'https']
+    });
 }
 
 function getFullFilePath(filePath) {
-    return path.isAbsolute(filePath) ? filePath : path.resolve(__dirname, '..', filePath);
+    return path.isAbsolute(filePath)
+        ? filePath
+        : path.resolve(__dirname, '..', filePath);
 }
 
 function getHashFilePath(filePath) {
@@ -24,13 +29,12 @@ function getHashFilePath(filePath) {
 }
 
 async function getFileByUrl(fileUrl) {
-    return got.get(fileUrl, { resolveBodyOnly: true })
+    return got.get(fileUrl, { resolveBodyOnly: true });
 }
 
 function createReadStreamByUrl(url) {
     return got.stream(url);
 }
-
 
 module.exports = {
     filePathIsUrl,

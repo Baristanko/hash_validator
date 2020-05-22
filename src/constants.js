@@ -7,7 +7,7 @@ const ERROR_CODES = {
     HashFileNotFound: 101,
     HashesNotMatch: 102,
     UnexpectedError: 103
-}
+};
 
 module.exports = {
     HASH_ALGORITHM,
