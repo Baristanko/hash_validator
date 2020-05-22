@@ -1,0 +1,1 @@
+Simple text file without hash for tests

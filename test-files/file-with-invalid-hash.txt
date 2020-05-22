@@ -1,0 +1,1 @@
+Simple text file with invalid hash for tests
