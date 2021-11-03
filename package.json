@@ -23,7 +23,7 @@
   "homepage": "https://github.com/Baristanko/hash_validator#readme",
   "dependencies": {
     "got": "11.1.4",
-    "validator": "13.0.0"
+    "validator": "13.7.0"
   },
   "devDependencies": {
     "eslint": "7.0.0",
